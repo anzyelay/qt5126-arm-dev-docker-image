@@ -15,52 +15,43 @@ if [ ! -d qt-everywhere-src-${QT_VERSION} ]; then
 
     QT_SRC=/opt/qt-everywhere-src-5.12.6
 
-    SPEC=$QT_SRC/qtbase/mkspecs/devices/linux-arm-gnueabihf-g++
+    SPEC=$QT_SRC/qtbase/mkspecs/linux-arm-gnueabihf-g++
 
     mkdir -p ${SPEC}
 
     cp \
-        ${QT_SRC}/qtbase/mkspecs/devices/linux-arm-generic-g++/qplatformdefs.h \
+         ${QT_SRC}/qtbase/mkspecs/linux-g++/qplatformdefs.h  \
         ${SPEC}
 
-    cat << EOF >> ${SPEC}/qmake.conf
-
+    cat > ${SPEC}/qmake.conf << 'EOF'
+#
+# qmake configuration for building with arm-linux-gnueabihf-g++
+#
 QT_QPA_DEFAULT_PLATFORM = linuxfb
-MAKEFILE_GENERATOR      = UNIX
-CONFIG                 += incremental gdb_dwarf_index
+MAKEFILE_GENERATOR = UNIX
+CONFIG += incremental
 QMAKE_INCREMENTAL_STYLE = sublib
 
-include(../../common/linux.conf)
-include(../../common/gcc-base-unix.conf)
-include(../../common/g++-unix.conf)
-
-load(device_config)
+include(../common/linux.conf)
+include(../common/gcc-base-unix.conf)
+include(../common/g++-unix.conf)
 
 # modifications to g++.conf
-QMAKE_CC                = $${CROSS_COMPILE}gcc
-QMAKE_CXX               = $${CROSS_COMPILE}g++
-QMAKE_LINK              = $${QMAKE_CXX}
-QMAKE_LINK_SHLIB        = $${QMAKE_CXX}
+QMAKE_CC = arm-linux-gnueabihf-gcc
+QMAKE_CXX = arm-linux-gnueabihf-g++
+QMAKE_LINK = arm-linux-gnueabihf-g++
+QMAKE_LINK_SHLIB = arm-linux-gnueabihf-g++
 
 # modifications to linux.conf
-QMAKE_AR                = $${CROSS_COMPILE}ar cqs
-QMAKE_OBJCOPY           = $${CROSS_COMPILE}objcopy
-QMAKE_NM                = $${CROSS_COMPILE}nm -P
-QMAKE_STRIP             = $${CROSS_COMPILE}strip
-
-# modifications to gcc-base.conf
-QMAKE_AR_LTCG           = $${CROSS_COMPILE}gcc-ar cqs
-QMAKE_NM_LTCG           = $${CROSS_COMPILE}gcc-nm -P
-
-contains(DISTRO_OPTS, deb-multi-arch):  QMAKE_PKG_CONFIG = $${CROSS_COMPILE}pkg-config
+QMAKE_AR = arm-linux-gnueabihf-ar cqs
+QMAKE_OBJCOPY = arm-linux-gnueabihf-objcopy
+QMAKE_NM = arm-linux-gnueabihf-nm -P
+QMAKE_STRIP = arm-linux-gnueabihf-strip
 
 QMAKE_CFLAGS           += -march=armv7-a -DLINUX=1
 QMAKE_CXXFLAGS         += -march=armv7-a -DLINUX=1
 
-include(../common/linux_device_post.conf)
-
 load(qt_config)
-
 EOF
 
 fi
@@ -81,6 +72,11 @@ cd build
     -device-option CROSS_COMPILE=arm-linux-gnueabihf- \
     -nomake examples \
     -nomake tests \
+    -no-opengl \
+    -no-xcb \
+    -no-gtk \
+    -no-feature-xcb \
+    -linuxfb \
     -skip qt3d \
     -skip qtdeclarative \
     -skip qtquickcontrols \
