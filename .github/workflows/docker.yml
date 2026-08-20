@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  # permit excute this workflow by manually
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   docker:
@@ -14,15 +19,20 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - 
+        name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: docker/login-action@v3
+      - 
+        name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v5
+      - name: Build and Push
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
