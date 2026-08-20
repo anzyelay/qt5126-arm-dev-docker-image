@@ -1,4 +1,8 @@
-FROM ubuntu:20.04
+########################################
+# Stage 1
+########################################
+
+FROM ubuntu:20.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
@@ -26,12 +30,12 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     sqlite3 \
     libsqlite3-dev \
-    ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+    ca-certificates
 
 WORKDIR /opt
 
-RUN git clone https://github.com/orangepi-xunlong/toolchain.git
+RUN git clone --depth 1 \
+    https://github.com/orangepi-xunlong/toolchain.git
 
 ENV TOOLCHAIN=/opt/toolchain/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf
 ENV QT_ROOT=/opt/qt5126
@@ -46,6 +50,48 @@ RUN chmod +x /opt/scripts/*.sh
 RUN /opt/scripts/build_qt.sh
 
 RUN /opt/scripts/build_qtmqtt.sh
+
+#########################################################
+# Stage 2 only copy needed files to reduce the image size
+#########################################################
+
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    ninja-build \
+    make \
+    perl \
+    python3 \
+    pkg-config \
+    libfontconfig1 \
+    libfreetype6 \
+    sqlite3 \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder \
+    /opt/toolchain/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf \
+    /opt/toolchain/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf
+
+COPY --from=builder \
+    /opt/qt5126 \
+    /opt/qt5126
+
+COPY --from=builder \
+    /opt/scripts/env.sh \
+    /opt/scripts/env.sh
+
+ENV TOOLCHAIN=/opt/toolchain/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf
+
+ENV QT_ROOT=/opt/qt5126
+
+ENV CROSS_COMPILE=arm-linux-gnueabihf-
+
+ENV PATH=${QT_ROOT}/bin:${TOOLCHAIN}/bin:$PATH
 
 RUN echo "source /opt/scripts/env.sh" >> /root/.bashrc
 
