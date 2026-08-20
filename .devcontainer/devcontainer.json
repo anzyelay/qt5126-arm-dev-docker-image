@@ -1,0 +1,16 @@
+{
+  "name": "Qt5126 Embedded ARM Dev",
+  "image": "ghcr.io/anzyelay/qt5126-arm-dev:latest",
+  "remoteUser": "root",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-vscode.makefile-tools"
+      ]
+    }
+  }
+}
