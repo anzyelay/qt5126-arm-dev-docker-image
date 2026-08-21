@@ -38,4 +38,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/qt5126-arm-dev:latest
-            ghcr.io/${{ github.repository_owner }}/qt5126-arm-dev:5.12.6
+            ghcr.io/${{ github.repository_owner }}/qt5126-arm-dev:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
