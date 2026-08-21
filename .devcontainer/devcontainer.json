@@ -2,7 +2,7 @@
   "name": "Qt5126 Embedded ARM Dev",
   "image": "ghcr.io/anzyelay/qt5126-arm-dev:latest",
   "remoteUser": "root",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspaces",
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "customizations": {
     "vscode": {
