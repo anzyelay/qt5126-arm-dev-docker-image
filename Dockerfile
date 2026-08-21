@@ -54,13 +54,17 @@ RUN /opt/scripts/build_qtmqtt.sh
 #########################################################
 # Stage 2 only copy needed files to reduce the image size
 #########################################################
-
-FROM ubuntu:20.04
+# use this image as base image because of it contains all compononts needed by codespaces 
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     build-essential \
+    vim \
+    bash-completion \
+    openssh-server \
+    sudo \
     git \
     cmake \
     ninja-build \
